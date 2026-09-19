@@ -1,0 +1,69 @@
+# Bangun lalu terbitkan aplikasi ke GitHub Pages setiap kali main berubah.
+#
+# Memakai alur resmi Pages (upload-pages-artifact + deploy-pages), bukan
+# mendorong hasil build ke branch gh-pages. Alasannya: hasil build TIDAK BOLEH
+# masuk riwayat git. Bundle-nya memuat VITE_API_TOKEN, jadi mengirimnya ke
+# sebuah branch berarti menanam kredensial di repo selamanya — sementara cara
+# ini menyimpannya sebagai artifact sementara saja.
+name: Deploy ke GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Supaya bisa dijalankan manual dari tab Actions tanpa harus commit.
+  workflow_dispatch:
+
+# Izin minimum yang dibutuhkan alur Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Satu penerbitan sekali jalan. `cancel-in-progress: false` disengaja:
+# membatalkan deploy yang sedang berjalan bisa meninggalkan situs separuh
+# terbit, jadi antrean lebih baik daripada pembatalan.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` bukan `npm install`: ia mematuhi package-lock.json apa adanya,
+      # sehingga hasil build di CI sama dengan yang diuji di komputer sendiri.
+      - name: Pasang dependensi
+        run: npm ci
+
+      - name: Jalankan tes
+        run: npm test
+
+      - name: Bangun
+        env:
+          # GitHub Pages menyajikan dari /<nama-repo>/, bukan dari root. Tanpa
+          # base yang benar, semua aset dicari di root dan halaman tampil kosong.
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_APPS_SCRIPT_URL: ${{ secrets.VITE_APPS_SCRIPT_URL }}
+          VITE_API_TOKEN: ${{ secrets.VITE_API_TOKEN }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

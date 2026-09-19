@@ -18,7 +18,13 @@ export default defineConfig({
 
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Sourcemap hanya saat membangun di komputer sendiri.
+    //
+    // Hasil build diterbitkan ke GitHub Pages yang selalu publik. Sourcemap
+    // memuat SELURUH kode sumber asli beserta komentarnya, jadi menyertakannya
+    // di produksi sama dengan menerbitkan repo dua kali — sekali sebagai kode,
+    // sekali lagi di dalam situsnya. GitHub Actions menyetel CI=true.
+    sourcemap: !process.env.CI,
   },
 
   test: {
