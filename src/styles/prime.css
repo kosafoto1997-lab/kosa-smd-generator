@@ -1,0 +1,253 @@
+/**
+ * prime.css — Tema PrimeReact dan jembatannya ke token aplikasi.
+ *
+ * PrimeReact menukar tema dengan mengganti seluruh berkas CSS, sementara
+ * aplikasi ini berpindah terang/gelap lewat atribut `data-theme` tanpa memuat
+ * ulang apa pun. Jembatannya: kedua tema dimuat sekaligus, lalu variabel
+ * PrimeReact yang menentukan warna ditimpa mengikuti token aplikasi.
+ *
+ * Yang ditimpa hanya **warna dan radius** — struktur, ukuran, dan perilaku
+ * komponen dibiarkan apa adanya. Menimpa lebih jauh berarti menulis ulang
+ * tema PrimeReact, dan itu justru menghapus alasan memakainya.
+ */
+
+/* Tema dasar: lara-dark-amber, yang aksennya paling dekat dengan emas merek. */
+@import 'primereact/resources/themes/lara-dark-amber/theme.css';
+@import 'primereact/resources/primereact.min.css';
+
+/*
+ * primeicons sengaja TIDAK diimpor.
+ *
+ * Berkas fontnya ~650 KB dalam empat format, sementara ikon di aplikasi ini
+ * digambar sebagai SVG inline. Memuatnya berarti membayar penuh untuk sesuatu
+ * yang tidak dipakai sama sekali. Kalau nanti ada komponen PrimeReact yang
+ * butuh ikon bawaan, impor ini yang dihidupkan kembali.
+ */
+
+/*
+ * Penyelarasan warna.
+ *
+ * PrimeReact memakai variabelnya sendiri di seluruh komponen, jadi menimpa
+ * variabel itu sekali di sini jauh lebih tahan banting daripada menimpa tiap
+ * selector komponen — yang namanya berubah antar versi.
+ */
+:root {
+  --primary-color: var(--accent);
+  --primary-color-text: var(--accent-ink);
+
+  --surface-ground: var(--bg);
+  --surface-section: var(--bg);
+  --surface-card: var(--surface);
+  --surface-overlay: var(--surface-2);
+  --surface-border: var(--border);
+  --surface-hover: var(--surface-2);
+
+  --text-color: var(--text);
+  --text-color-secondary: var(--text-dim);
+
+  --border-radius: var(--radius);
+
+  /* Font mengikuti aplikasi, bukan bawaan PrimeReact. */
+  font-family: var(--font-body);
+}
+
+/*
+ * Mode terang.
+ *
+ * Tema lara-dark memberi komponen latar gelap lewat variabelnya sendiri;
+ * menimpa variabel yang sama dengan token terang membuat komponen ikut terang
+ * tanpa perlu memuat berkas tema kedua.
+ */
+:root[data-theme='light'] {
+  --surface-a: var(--surface);
+  --surface-b: var(--bg);
+  --surface-c: var(--surface-2);
+  --surface-d: var(--border);
+  --surface-e: var(--surface);
+  --surface-f: var(--surface);
+}
+
+:root[data-theme='dark'] {
+  --surface-a: var(--surface);
+  --surface-b: var(--bg);
+  --surface-c: var(--surface-2);
+  --surface-d: var(--border);
+  --surface-e: var(--surface);
+  --surface-f: var(--surface);
+}
+
+/* --------------------------------------------------------------- input */
+
+/*
+ * Ukuran kendali disamakan dengan elemen native lewat token yang sama.
+ *
+ * Komponen PrimeReact dan tombol native berdiri berdampingan dalam satu
+ * baris di banyak tempat, jadi tingginya harus berubah bersamaan — termasuk
+ * saat token mengecil di layar lebar.
+ *
+ * Padding vertikal dinolkan dan tingginya diserahkan ke `min-height`:
+ * bawaan tema memakai padding 0.75rem yang, ditambah tinggi barisnya, selalu
+ * melebihi tinggi yang diminta.
+ */
+.p-inputtext,
+.p-dropdown,
+.p-button,
+.p-multiselect {
+  min-height: var(--control-h);
+  font-family: inherit;
+  font-size: var(--control-font);
+}
+
+.p-button {
+  padding: var(--control-pad);
+}
+
+.p-inputtext,
+.p-dropdown .p-dropdown-label {
+  padding-block: 0;
+}
+
+/*
+ * Dropdown adalah flex container, bukan kotak teks biasa: tingginya mengikuti
+ * isi (label + tombol panah), bukan `min-height` semata. Tanpa perataan
+ * eksplisit ia berakhir sedikit lebih tinggi daripada kolom teks di
+ * sebelahnya, dan dua kolom dalam satu baris grid terlihat meleset.
+ */
+.p-dropdown {
+  align-items: center;
+}
+
+.p-dropdown .p-dropdown-label {
+  display: flex;
+  align-items: center;
+  /* Tinggi barisnya tidak boleh menambah tinggi kotak — itu tugas min-height. */
+  line-height: 1;
+}
+
+.p-inputtextarea {
+  min-height: 0;
+  font-family: inherit;
+}
+
+/* Input memenuhi lebar wadahnya, seperti input biasa di aplikasi ini. */
+.p-inputtext,
+.p-dropdown,
+.p-inputtextarea {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------- tombol */
+
+/*
+ * Tombol sekunder memakai garis tepi, bukan blok warna penuh.
+ *
+ * Satu halaman di sini sering memuat lima tombol atau lebih; kalau semuanya
+ * blok warna, tidak ada yang menonjol dan aksi utamanya hilang di antaranya.
+ */
+.p-button.p-button-secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.p-button.p-button-secondary:not(:disabled):hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* Tombol teks: dipakai untuk aksi sekunder di dalam kalimat. */
+.p-button.p-button-text {
+  color: var(--accent);
+}
+
+.p-button.p-button-text:not(:disabled):hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------- pil */
+
+/*
+ * Pil penyaring: tombol PrimeReact yang dibulatkan penuh.
+ * Warnanya mengikuti pola yang sudah dipakai sebelum PrimeReact masuk.
+ */
+.pills .p-button {
+  border-radius: var(--radius-full);
+  padding: 0 var(--s4);
+  font-size: var(--control-font);
+  min-height: var(--control-h);
+}
+
+/* ------------------------------------------------------------- slider */
+
+.p-slider {
+  background: var(--surface-3);
+}
+
+.p-slider .p-slider-range {
+  background: var(--accent);
+}
+
+.p-slider .p-slider-handle {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+/* ----------------------------------------------------------- checkbox */
+
+.p-checkbox .p-checkbox-box.p-highlight {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon {
+  color: var(--accent-ink);
+}
+
+/*
+ * Didefinisikan sendiri, bukan diambil dari PrimeFlex.
+ *
+ * PrimeFlex adalah paket terpisah; memasangnya hanya demi satu kelas utilitas
+ * berarti menambah seluruh pustakanya untuk satu baris aturan.
+ */
+.p-button.w-full {
+  width: 100%;
+}
+
+/* Dua tombol pilihan mode, sama lebar. */
+.mode-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s2);
+  margin-bottom: var(--s4);
+}
+
+/* Label ikut meredup saat checkbox-nya nonaktif. */
+.check-off {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------ tombol di dalam tag */
+
+/*
+ * Tombol hapus "×" di bank hashtag menempel di dalam kapsul tagnya, jadi
+ * ukuran sasaran sentuh 44px yang berlaku di tempat lain justru merusaknya.
+ */
+.htag .p-button {
+  min-height: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+/* ------------------------------------------------------------ dropdown */
+
+/* Panel melayang harus berada di atas panel geser milik aplikasi. */
+.p-dropdown-panel,
+.p-tooltip {
+  z-index: 200;
+}

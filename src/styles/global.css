@@ -1,0 +1,418 @@
+/**
+ * Token desain + gaya global.
+ *
+ * Dibangun mobile-first: nilai bawaan di sini untuk layar sempit, dan hanya
+ * diperlebar lewat `min-width` saat ruangnya benar-benar ada. Menulis
+ * `max-width` berarti bertarung melawan bawaan sendiri.
+ *
+ * Dua tema memakai token yang sama. Komponen tidak pernah tahu tema mana yang
+ * sedang aktif — ia hanya memakai `--surface`, `--text`, dan seterusnya. Itu
+ * sebabnya menambah tema ketiga nanti tidak menuntut menyentuh satu komponen
+ * pun.
+ *
+ * JANGAN menulis warna mentah di komponen.
+ */
+
+:root {
+  /* ---------------------------------------------------------- tema gelap */
+
+  --bg: #0c0e11;
+  --bg-sunk: #08090b;
+  --surface: #14181d;
+  --surface-2: #1b2027;
+  --surface-3: #232931;
+  --border: #272e37;
+  --border-strong: #38414d;
+
+  --text: #eef1f4;
+  --text-dim: #949fac;
+  --text-faint: #626d7a;
+
+  /* Emas merek. `-ink` adalah warna teks yang terbaca di atasnya. */
+  --accent: #d8b571;
+  --accent-soft: #3a2f1a;
+  --accent-ink: #1a1206;
+
+  --ok: #52d98a;
+  --warn: #f5c451;
+  --error: #ff7b7b;
+  --ok-soft: #14301f;
+  --warn-soft: #33280d;
+  --error-soft: #3a1a1a;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-2: 0 4px 16px rgb(0 0 0 / 45%);
+  --shadow-3: 0 18px 48px rgb(0 0 0 / 60%);
+
+  color-scheme: dark;
+
+  /* ------------------------------------------------- token bebas tema */
+
+  /*
+   * Skala spasi kelipatan 4px. Angka acak seperti 0.55rem yang dulu bertebaran
+   * membuat jarak antar elemen tidak pernah benar-benar sejajar.
+   */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  /*
+   * Serif untuk judul: produknya menjual undangan pernikahan, dan antarmuka
+   * yang seluruhnya sans terasa seperti panel admin, bukan alat desain.
+   */
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --mono: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+
+  /* Tinggi sentuh minimum. Di bawah ini jempol sering meleset. */
+  --tap: 44px;
+
+  /*
+   * Tinggi tombol dan kolom isian.
+   *
+   * Dipisahkan dari `--tap` karena keduanya menjawab hal berbeda: `--tap`
+   * adalah batas fisik jari yang tidak berubah, sementara ini soal kepadatan
+   * tampilan. Di layar sempit keduanya sama; di layar lebar — tempat yang
+   * dipakai tetikus, bukan jempol — nilainya diturunkan di blok media.
+   */
+  --control-h: var(--tap);
+  --control-pad: 0 var(--s4);
+  --control-font: 0.9rem;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Tinggi bilah navigasi bawah, dipakai memberi ruang di dasar halaman. */
+  --navbar: calc(56px + env(safe-area-inset-bottom, 0px));
+}
+
+/* -------------------------------------------------------------- tema terang */
+
+:root[data-theme='light'] {
+  --bg: #f7f4ef;
+  --bg-sunk: #ece7df;
+  --surface: #ffffff;
+  --surface-2: #f4f1ec;
+  --surface-3: #e9e4dc;
+  --border: #e0d9cf;
+  --border-strong: #c4b9a9;
+
+  --text: #191713;
+  --text-dim: #5f5850;
+  --text-faint: #8c837a;
+
+  --accent: #9a7223;
+  --accent-soft: #f6eeda;
+  --accent-ink: #ffffff;
+
+  --ok: #1a7f4b;
+  --warn: #9a6a08;
+  --error: #b3342f;
+  --ok-soft: #e3f4ea;
+  --warn-soft: #faf0d8;
+  --error-soft: #fbe7e5;
+
+  /* Bayangan di tema terang harus jauh lebih lembut; nilai tema gelap akan
+     tampak seperti noda hitam di atas kertas. */
+  --shadow-1: 0 1px 2px rgb(60 46 20 / 8%);
+  --shadow-2: 0 4px 14px rgb(60 46 20 / 10%);
+  --shadow-3: 0 18px 44px rgb(60 46 20 / 16%);
+
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------------ dasar */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Layar sempit tidak boleh bisa digeser ke samping. */
+  overflow-x: hidden;
+}
+
+/*
+ * Wadah React harus meneruskan lebar dan tinggi penuh ke aplikasi di dalamnya.
+ *
+ * Tanpa ini ia hanya sebuah blok biasa: tata letak dua kolom di layar lebar
+ * tetap terbentuk, tapi isinya menyusut ke lebar konten alaminya dan menumpuk
+ * di tengah, menyisakan ruang kosong lebar di kiri dan kanan.
+ */
+#root {
+  min-height: 100dvh;
+  width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 var(--s2);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0 0 var(--s3);
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+/* ---------------------------------------------------------------- kontrol */
+
+/*
+ * Gaya dasar elemen form.
+ *
+ * `:not([class*='p-'])` mengecualikan komponen PrimeReact, yang merender
+ * elemen `button`/`input` yang sama persis. Tanpa pengecualian ini aturan di
+ * bawah menimpa tema PrimeReact dan hasilnya campur aduk: sebagian gaya dari
+ * sini, sebagian dari sana, tergantung mana yang kebetulan lebih spesifik.
+ *
+ * Elemen native masih dipakai di beberapa tempat yang sengaja tidak
+ * dikonversi — kendali tersegmentasi, kartu pilihan, pemilih tanggal — jadi
+ * aturan ini tetap diperlukan.
+ */
+button:not([class*='p-']) {
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: var(--control-h);
+  padding: var(--control-pad);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: var(--radius);
+  transition:
+    background 0.15s var(--ease),
+    border-color 0.15s var(--ease),
+    transform 0.08s var(--ease);
+}
+
+button:not([class*='p-']):hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--border-strong);
+}
+
+/* Umpan balik tekan lebih penting di layar sentuh daripada hover. */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Fokus harus terlihat jelas, tapi hanya saat memakai papan ketik. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+input:not([class*='p-']),
+select:not([class*='p-']),
+textarea:not([class*='p-']) {
+  font: inherit;
+  width: 100%;
+  min-height: var(--control-h);
+  padding: var(--s2) var(--s3);
+  background: var(--bg-sunk);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    border-color 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+
+/*
+ * 16px mencegah iOS Safari memperbesar halaman saat kolom disentuh — zoom
+ * itu menggeser tata letak dan sulit dikembalikan dengan satu tangan.
+ */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+textarea:not([class*='p-']) {
+  min-height: 5rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+input:not([class*='p-']):focus,
+select:not([class*='p-']):focus,
+textarea:not([class*='p-']):focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+}
+
+select:not([class*='p-']) {
+  appearance: none;
+  /* Ruang untuk panah yang digambar sendiri; panah bawaan tidak bisa diwarnai. */
+  padding-right: var(--s6);
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 1.15rem center,
+    right 0.85rem center;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+}
+
+input[type='checkbox'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+input[type='range'] {
+  width: 100%;
+  min-height: 0;
+  height: 2rem;
+  padding: 0;
+  background: none;
+  border: none;
+  appearance: none;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: var(--shadow-1);
+}
+
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+
+/* --------------------------------------------------------------- guliran */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Hormati pengguna yang mematikan animasi di setelan sistemnya. */
+/* --------------------------------------------------------- kepadatan */
+
+/*
+ * Kendali menyusut di layar lebar.
+ *
+ * Tinggi 44px ada untuk jempol, dan di layar sentuh ia tidak boleh turun.
+ * Di ≥1024px — ambang yang sama dengan saat navigasi pindah ke kolom kiri —
+ * yang dipakai hampir pasti tetikus, dan sasaran sebesar itu membuat
+ * antarmuka terasa gemuk tanpa memberi manfaat apa pun.
+ *
+ * Diubah lewat token, bukan menimpa tiap selector, sehingga elemen native dan
+ * komponen PrimeReact menyusut bersamaan dan tetap sejajar dalam satu baris.
+ */
+@media (min-width: 1024px) and (pointer: fine) {
+  :root {
+    --control-h: 2.125rem;
+    --control-pad: 0 var(--s3);
+    --control-font: 0.86rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

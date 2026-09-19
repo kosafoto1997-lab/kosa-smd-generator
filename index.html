@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!--
+      Warna bilah sistem ikut tema. Tanpa ini, bilah alamat di ponsel tetap
+      putih terang walau aplikasinya gelap, dan tepi layar terlihat patah.
+    -->
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c0e11" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4ef" />
+
+    <!--
+      Font judul antarmuka. Preconnect dipasang lebih dulu supaya jabat tangan
+      TLS ke server font tidak menunda pemuatan berkasnya.
+
+      Hanya berat yang benar-benar dipakai yang diminta.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap"
+    />
+
+    <title>Kosa SMD Generator</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
