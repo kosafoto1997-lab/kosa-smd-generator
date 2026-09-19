@@ -2378,3 +2378,183 @@
     width: min(1100px, 100%);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Tab Desain — editor kanvas bebas
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Tiga kolom di layar lebar; menumpuk di layar sempit dengan kanvas lebih
+   dulu, karena itu yang orang lihat sambil bekerja. */
+.dz {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 300px;
+  gap: 16px;
+  align-items: start;
+}
+
+.dz-left,
+.dz-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dz-center { min-width: 0; }
+
+@media (max-width: 1100px) {
+  .dz { grid-template-columns: 1fr; }
+  .dz-center { order: -1; }
+}
+
+.dz-toolbar { margin-bottom: 10px; }
+
+.dz-stage-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 10px;
+  /* Kotak-kotak abu: menandai area di luar kanvas, sekaligus membuat desain
+     berlatar putih tetap terlihat batasnya. */
+  background-image:
+    linear-gradient(45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(128, 128, 128, 0.12) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(128, 128, 128, 0.12) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(128, 128, 128, 0.12) 75%);
+  background-size: 18px 18px;
+  background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+  overflow: auto;
+}
+
+.dz-stage { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22); }
+
+/* Pustaka aset */
+.dz-assets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dz-asset {
+  padding: 9px 12px;
+  text-align: left;
+  border: 1px solid var(--line, rgba(128, 128, 128, 0.35));
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dz-asset:hover { border-color: var(--accent, #c9a961); }
+
+/* Zona seret-lepas berkas */
+.dz-drop {
+  padding: 22px 12px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 0.86rem;
+  border: 2px dashed var(--line, rgba(128, 128, 128, 0.45));
+  border-radius: 10px;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.dz-drop-on {
+  border-color: var(--accent, #c9a961);
+  background: rgba(201, 169, 97, 0.1);
+  opacity: 1;
+}
+
+/* Contoh warna latar */
+.dz-swatches {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.dz-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  cursor: pointer;
+}
+
+/* Daftar layer */
+.dz-layers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.dz-layer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+}
+
+.dz-layer-on {
+  border-color: var(--accent, #c9a961);
+  background: rgba(201, 169, 97, 0.12);
+}
+
+.dz-layer-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dz-layer-kind {
+  flex: none;
+  width: 18px;
+  text-align: center;
+  opacity: 0.65;
+  font-size: 0.8rem;
+}
+
+/* Nama panjang dipotong, bukan membungkus: baris layer harus tetap setinggi
+   satu baris supaya daftarnya bisa dipindai cepat. */
+.dz-layer-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.dz-layer-acts {
+  display: flex;
+  gap: 2px;
+  flex: none;
+}
+
+.dz-layer-acts button {
+  padding: 2px 6px;
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
+/* Pasangan kolom angka: X/Y dan Lebar/Tinggi */
+.dz-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 10px;
+}

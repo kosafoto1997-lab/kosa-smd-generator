@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useBootstrap } from '@/hooks/useBootstrap';
 import { useTheme } from '@/hooks/useTheme';
 import { ToastProvider } from '@/hooks/useToast';
-import { TooltipHost } from '@/components/ui';
+import { Spinner, TooltipHost } from '@/components/ui';
 import { GeneratePage } from '@/features/generate';
 import { LibraryPage } from '@/features/library';
 import { CalendarPage } from '@/features/calendar';
@@ -11,7 +11,19 @@ import { IdeasPanel } from '@/features/ideas';
 import { HashtagPanel } from '@/features/hashtags';
 import './App.css';
 
-type Tab = 'generate' | 'library' | 'calendar' | 'settings';
+type Tab = 'generate' | 'design' | 'library' | 'calendar' | 'settings';
+
+/**
+ * Tab Desain dimuat terpisah, bukan ikut berkas utama.
+ *
+ * Konva menambah sekitar 300 kB. Membuatnya ikut pemuatan awal berarti setiap
+ * orang menunggu pustaka kanvas selesai diunduh sebelum bisa melihat apa pun —
+ * termasuk yang hanya ingin menyalin caption. Dengan dipisah, ongkos itu hanya
+ * dibayar oleh yang benar-benar membuka tab Desain.
+ */
+const DesignPage = lazy(() =>
+  import('@/features/design').then((m) => ({ default: m.DesignPage })),
+);
 
 /**
  * Ikon digambar sebagai SVG sebaris, bukan diambil dari pustaka ikon.
@@ -22,6 +34,8 @@ type Tab = 'generate' | 'library' | 'calendar' | 'settings';
 const ICONS: Record<Tab, string> = {
   // pena
   generate: 'M12 19l7-7 3 3-7 7-3-3z M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z M2 2l7.586 7.586',
+  // kuas dan bidang — kanvas bebas
+  design: 'M12 2l2.5 5.5L20 10l-5.5 2.5L12 18l-2.5-5.5L4 10l5.5-2.5z M18 16l1.2 2.8L22 20l-2.8 1.2L18 24',
   // tumpukan kartu
   library: 'M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z',
   // kalender
@@ -33,6 +47,7 @@ const ICONS: Record<Tab, string> = {
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'generate', label: 'Buat' },
+  { id: 'design', label: 'Desain' },
   { id: 'library', label: 'Konten' },
   { id: 'calendar', label: 'Jadwal' },
   { id: 'settings', label: 'Atur' },
@@ -66,8 +81,23 @@ export function App() {
 }
 
 function Shell() {
-  const [tab, setTab] = useState<Tab>('generate');
+  const [tab, setTabState] = useState<Tab>('generate');
   const { data, error } = useBootstrap();
+
+  /*
+    Sekali tab Desain dibuka, ia tetap terpasang selamanya — `hidden` yang
+    menyembunyikannya, bukan pelepasan dari pohon React. Dokumen kanvas hidup
+    di useState dan belum tersimpan di mana pun, jadi melepasnya berarti
+    membuang desain yang sedang dikerjakan.
+
+    Sebelum pernah dibuka, ia tidak dipasang sama sekali supaya Konva (~300 kB)
+    tidak ikut diunduh orang yang tidak memakainya.
+  */
+  const [seenDesign, setSeenDesign] = useState(false);
+  const setTab = (next: Tab) => {
+    if (next === 'design') setSeenDesign(true);
+    setTabState(next);
+  };
   const { theme, toggle } = useTheme();
 
   const brandName = data?.brand['brand_name'] ?? 'Kosa SMD';
@@ -143,6 +173,14 @@ function Shell() {
         <div className="tabpane" hidden={tab !== 'generate'}>
           <GeneratePage ideasSlot={(fill) => <IdeasPanel onPick={fill} />} />
         </div>
+        {/* Lihat penjelasan seenDesign di atas. */}
+        {seenDesign && (
+          <div className="tabpane" hidden={tab !== 'design'}>
+            <Suspense fallback={<Spinner label="Memuat editor…" />}>
+              <DesignPage />
+            </Suspense>
+          </div>
+        )}
         {tab === 'library' && <LibraryPage />}
         {tab === 'calendar' && <CalendarPage />}
         {tab === 'settings' && <SettingsPage hashtagSlot={<HashtagPanel />} />}
